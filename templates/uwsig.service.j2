@@ -1,0 +1,28 @@
+{{ uwsgi_log_path }}
+Description=uWSGI Emperor Service
+After=syslog.target
+
+[Service]
+EnvironmentFile=-{{ envi{{ uwsgi_log_path }}
+ExecStartPre=/bin/mkdir -p {{ uwsgi_run }}
+ExecStartPre=/bin/mkdir -p {{ uwsgi_run_stats }}
+ExecStartPre=/bin/mkdir -p {{ uwsgi_log_path }}
+ExecStartPre=/bin/chown -R {{ uwsgi_user }}:{{ uwsgi_user  }  {{ uwsgi_run }}
+ExecStartPre=/bin/chown -R {{ uwsgi_user }}:{{ uwsgi_user  } {{ uwsgi_log_path }}
+ExecStartPre=/bin/chown -R {{ uwsgi_user }}:{{ uwsgi_user  } {{ venv_home }}
+
+ExecStartPre=/bin/chcon -R system_u:object_r:httpd_log_t:s0 {{ uwsgi_log_path }}
+ExecStartPre=/bin/chcon -R system_u:object_r:httpd_var_run_t:s0 {{ uwsgi_run }}
+ExecStartPre=/bin/chcon system_u:object_r:httpd_exec_t:s0 {{ uwsgi_bin_path }}/uwsgi
+
+ExecStart=/sbin/uwsgi --ini {{ uwsgi_ini_path }}/uwsgi.ini
+ExecReload=/bin/kill -HUP $MAINPID
+KillSignal=SIGINT
+Restart=always
+Type=notify
+StandardError=syslog
+NotifyAccess=all
+
+
+[Install]
+WantedBy=multi-user.target

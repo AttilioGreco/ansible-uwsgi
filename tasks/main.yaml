@@ -1,0 +1,49 @@
+---
+#main task
+- name: install the latest version of uwsgi
+  package:
+    name: uwsgi
+    state: latest
+
+- name: create uswgi.ini file at {{ uwsgi_ini_path }}/uwsgi.ini
+  template: src=templates/uwsig.ini.j2 dest={{ uwsgi_ini_path }}/uwsgi.ini owner=root group=root mode=0661
+
+- name: create {{ uwsgi_run }} path
+  file:
+    path: {{ uwsgi_run }}
+    state: directory
+    owner: {{ uwsgi_user }}
+    group: {{ uwsgi_user }} 
+    mode: 0755
+
+- name: create {{ uwsgi_run_stats }} path
+  file:
+    path: {{ uwsgi_run_stats }} 
+    state: directory
+    owner: {{ uwsgi_user }}
+    group: {{ uwsgi_user }} 
+    mode: 0756
+
+- name: create {{ uwsgi_log_path }} path
+  file:
+    path: {{ uwsgi_log_path }}
+    state: directory
+    owner: {{ uwsgi_user }} 
+    group: {{ uwsgi_user }}
+    mode: 0755
+
+#- name: configure selinux context /run/uwsgi/ httpd_log_t
+#  sefcontext:
+#    target: '/run/uwsgi/'
+#    setype: httpd_log_t
+#    state: present
+
+- name: configure systemd uwsgi unit
+  template: src=templates/uwsig.service.j2 dest=/etc/systemd/system/uwsgi.service mode=644
+
+- name: reload systemctl
+  command: systemctl daemon-reload
+
+- name: reload systemctl
+  command: systemctl restart uwsgi
+

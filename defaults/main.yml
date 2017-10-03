@@ -1,0 +1,23 @@
+---
+#+----------------------------------------------------------------------------+
+#|                                                                            |
+#|                       U W S G I   V A R IA B L E S                         |
+#|                                                                            |
+#+----------------------------------------------------------------------------+
+uwsgi_version:
+environmentFile: /etc/sysconfig/uwsgi
+uwsgi_bin_path: /sbin
+uwsgi_run: /run/uwsgi
+uwsgi_run_stats: /run/uwsgi/stat
+uwsgi_log_path: /var/log/uwsgi
+uwsgi_user: nginx
+uwsgi_ini_path: /etc
+
+
+#+----------------------------------------------------------------------------+
+#|                                                                            |
+#|              V I R T U A L _ E N V    V A R IA B L E S                     |
+#|                                                                            |
+#+----------------------------------------------------------------------------+
+venv_home: /usr/venv
+
