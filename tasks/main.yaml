@@ -1,5 +1,17 @@
 ---
-#main task
+- name: Copy the EPEL repository definition
+  copy: src=epel.repo dest=/etc/yum.repos.d/
+  when: ansible_os_family == "RedHat"
+
+- name: Create the GPG key for EPEL
+  copy: src=RPM-GPG-KEY-EPEL-7 dest=/etc/pki/rpm-gpg
+  when: ansible_os_family == "RedHat"
+
+- name: update apt cache
+  apt:
+  update_cache: yes
+  when: ansible_os_family == "Debian"
+
 - name: install the latest version of uwsgi
   package:
     name: uwsgi
@@ -8,29 +20,48 @@
 - name: create uswgi.ini file at {{ uwsgi_ini_path }}/uwsgi.ini
   template: src=templates/uwsig.ini.j2 dest={{ uwsgi_ini_path }}/uwsgi.ini owner=root group=root mode=0661
 
-- name: create {{ uwsgi_run }} path
+- name: create uwsgi group
+  group: name={{ uwsgi_user }}  state=present
+
+- name: Create Venv "{{venv_home}}" Folder if not exist
   file:
-    path: {{ uwsgi_run }}
+    path: "{{venv_home}}"
     state: directory
-    owner: {{ uwsgi_user }}
-    group: {{ uwsgi_user }} 
     mode: 0755
 
-- name: create {{ uwsgi_run_stats }} path
+- name: create uwsgi user
+  user:
+    name: "{{ uwsgi_user }}"
+    group: "{{ uwsgi_group }}"
+    createhome: no
+    shell: /sbin/nologin
+    comment: "Uwsgi User"
+    state: present
+
+- name: create "{{ uwsgi_run }}" path
   file:
-    path: {{ uwsgi_run_stats }} 
+    path: "{{ uwsgi_run }}"
     state: directory
-    owner: {{ uwsgi_user }}
-    group: {{ uwsgi_user }} 
+    owner: "{{ uwsgi_user }}"
+    group: "{{ uwsgi_group }}" 
+    mode: 0755
+
+- name: create "{{ uwsgi_run_stats }}" path
+  file:
+    path: "{{ uwsgi_run_stats }}"
+    state: directory
+    owner: "{{ uwsgi_user }}"
+    group: "{{ uwsgi_group }}"
     mode: 0756
 
-- name: create {{ uwsgi_log_path }} path
+- name: create "{{ uwsgi_log_path }}" path
   file:
-    path: {{ uwsgi_log_path }}
+    path: "{{ uwsgi_log_path }}"
     state: directory
-    owner: {{ uwsgi_user }} 
-    group: {{ uwsgi_user }}
+    owner: "{{ uwsgi_user }}"
+    group: "{{ uwsgi_group }}"
     mode: 0755
+
 
 #- name: configure selinux context /run/uwsgi/ httpd_log_t
 #  sefcontext:
@@ -40,10 +71,14 @@
 
 - name: configure systemd uwsgi unit
   template: src=templates/uwsig.service.j2 dest=/etc/systemd/system/uwsgi.service mode=644
+  tags: systemd
+  when: ansible_os_family == "RedHat"
 
 - name: reload systemctl
   command: systemctl daemon-reload
+  when: ansible_os_family == "RedHat"
 
 - name: reload systemctl
   command: systemctl restart uwsgi
+  when: ansible_os_family == "RedHat"
 

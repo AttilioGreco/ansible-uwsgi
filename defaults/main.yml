@@ -11,6 +11,7 @@ uwsgi_run: /run/uwsgi
 uwsgi_run_stats: /run/uwsgi/stat
 uwsgi_log_path: /var/log/uwsgi
 uwsgi_user: nginx
+uwsgi_group: nginx
 uwsgi_ini_path: /etc
 
 
