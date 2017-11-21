@@ -1,9 +1,8 @@
 [uwsgi]
-uid = nginx
-gid = nginx
-pidfile = /run/uwsgi/uwsgi.pid
+uid =  {{ uwsgi_user }}
+gid = {{ uwsgi_group }}
+pidfile = {{ uwsgi_run }}/uwsgi.pid
 emperor = /etc/uwsgi.d
-stats = /run/uwsgi/stats.sock
-# emperor-tyrant = true
+stats = {{ uwsgi_run }}/stats.sock
 cap = setgid,setuid
-logfile = /var/log/uwsgi/uwsgi.service.log
+logfile = {{ uwsgi_log_path }}/uwsgi.service.log

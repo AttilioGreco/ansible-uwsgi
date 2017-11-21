@@ -78,7 +78,7 @@
   command: systemctl daemon-reload
   when: ansible_os_family == "RedHat"
 
-- name: reload systemctl
+- name: restart systemctl
   command: systemctl restart uwsgi
   when: ansible_os_family == "RedHat"
 
