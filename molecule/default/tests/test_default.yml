@@ -1,0 +1,24 @@
+---
+package:
+  uwsgi:
+    installed: true
+port:
+  tcp:80:
+    listening: true
+    ip:
+      - 0.0.0.0
+service:
+  uwsgi:
+    enabled: true
+    running: true
+user:
+  uwsgi:
+    exists: true
+    groups:
+      - uwsgi
+group:
+  uwsgi:
+    exists: true
+process:
+  uwsgi:
+    running: true

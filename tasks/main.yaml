@@ -15,7 +15,7 @@
 - name: install the latest version of uwsgi
   package:
     name: uwsgi
-    state: latest
+    state: present
 
 - name: create uswgi.ini file at {{ uwsgi_ini_path }}/uwsgi.ini
   template: src=templates/uwsig.ini.j2 dest={{ uwsgi_ini_path }}/uwsgi.ini owner=root group=root mode=0661
@@ -35,7 +35,6 @@
     group: "{{ uwsgi_group }}"
     createhome: no
     shell: /sbin/nologin
-    comment: "Uwsgi User"
     state: present
 
 - name: create "{{ uwsgi_run }}" path
@@ -43,7 +42,7 @@
     path: "{{ uwsgi_run }}"
     state: directory
     owner: "{{ uwsgi_user }}"
-    group: "{{ uwsgi_group }}" 
+    group: "{{ uwsgi_group }}"
     mode: 0755
 
 - name: create "{{ uwsgi_run_stats }}" path
@@ -62,23 +61,25 @@
     group: "{{ uwsgi_group }}"
     mode: 0755
 
-
-#- name: configure selinux context /run/uwsgi/ httpd_log_t
-#  sefcontext:
-#    target: '/run/uwsgi/'
-#    setype: httpd_log_t
-#    state: present
+# - name: configure selinux context /run/uwsgi/ httpd_log_t
+#   sefcontext:
+#     target: '/run/uwsgi/'
+#     setype: httpd_log_t
+#     state: present
 
 - name: configure systemd uwsgi unit
-  template: src=templates/uwsig.service.j2 dest=/etc/systemd/system/uwsgi.service mode=644
+  template:
+    src: templates/uwsig.service.j2
+    dest: /etc/systemd/system/uwsgi.service
+    mode: 0644
   tags: systemd
   when: ansible_os_family == "RedHat"
+  notify:
+    - reload uwsgi
+    - restart uwsgi
 
-- name: reload systemctl
-  command: systemctl daemon-reload
-  when: ansible_os_family == "RedHat"
-
-- name: restart systemctl
-  command: systemctl restart uwsgi
-  when: ansible_os_family == "RedHat"
-
+- name: ensure uwsgi is started
+  service:
+    name: uwsgi
+    state: started
+    enabled: yes
